@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+/**
+ * ─────────────────────────────────────────────────────────────
+ * Design tokens Santa — ARTEFACT GÉNÉRÉ
+ * Source de vérité : set de tokens « Santa » dans Penpot.
+ * Ne pas éditer à la main : toute modification doit être faite
+ * dans Penpot puis ré-exportée (voir design.md § Re-sync).
+ * ─────────────────────────────────────────────────────────────
+ */
+@theme {
+  /* Couleurs — marque */
+  --color-brand-green: #7baf56;
+  --color-brand-red: #ff554d;
+
+  /* Couleurs — fonds */
+  --color-bg-canvas: #fff4dd;
+  --color-bg-surface: #ffffff;
+  --color-bg-subtle: #f7efe2;
+
+  /* Couleurs — texte */
+  --color-text-primary: #ff554d;
+  --color-text-on-brand: #ffffff;
+  --color-text-on-brand-disabled: #e8e0d2;
+  --color-text-accent: #7baf56;
+  --color-text-placeholder: #adaaaa;
+  --color-text-muted: #939393;
+
+  /* Couleurs — bordures */
+  --color-border-default: #c5bfb9;
+  --color-border-subtle: #e8e0d2;
+  --color-shadow-base: #9e9d9d;
+
+  /* Couleurs — états */
+  --color-state-default-green: #7baf56;
+  --color-state-hover-green: #6d9d4b;
+  --color-state-pressed-green: #5f8b40;
+  --color-state-disabled-green: #c3d8b2;
+
+  --color-state-default-red: #ff554d;
+  --color-state-hover-red: #e5473f;
+  --color-state-pressed-red: #cc3a33;
+  --color-state-disabled-red: #ffb3af;
+  --color-state-disabled-text: #939393;
+
+  /* Typographie — Sofia Sans, line-height 1.2 partout */
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 1.2;
+  --text-display-lg--font-weight: 400;
+
+  --text-display-md: 40px;
+  --text-display-md--line-height: 1.2;
+  --text-display-md--font-weight: 400;
+
+  --text-heading-lg: 30px;
+  --text-heading-lg--line-height: 1.2;
+  --text-heading-lg--font-weight: 600;
+
+  --text-heading-md: 24px;
+  --text-heading-md--line-height: 1.2;
+  --text-heading-md--font-weight: 600;
+
+  --text-heading-sm: 20px;
+  --text-heading-sm--line-height: 1.2;
+  --text-heading-sm--font-weight: 600;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.2;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.2;
+  --text-body-md--font-weight: 400;
+
+  --text-label-lg: 18px;
+  --text-label-lg--line-height: 1.2;
+  --text-label-lg--font-weight: 400;
+
+  --text-label-sm: 16px;
+  --text-label-sm--line-height: 1.2;
+  --text-label-sm--font-weight: 400;
+
+  --text-caption: 12px;
+  --text-caption--line-height: 1.2;
+  --text-caption--font-weight: 400;
+
+  --text-avatar-md: 36px;
+  --text-avatar-md--line-height: 1.2;
+  --text-avatar-md--font-weight: 400;
+
+  --text-avatar-lg: 48px;
+  --text-avatar-lg--line-height: 1.2;
+  --text-avatar-lg--font-weight: 400;
+
+  /* Espacements */
+  --spacing-0: 0px;
+  --spacing-4: 4px;
+  --spacing-5: 5px;
+  --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+
+  /* Hauteurs de contrôle et tailles — namespace spacing :
+     génère h-control-md, w-avatar-lg, etc. */
+  --spacing-control-md: 66px;
+  --spacing-control-sm: 44px;
+  --spacing-control-xs: 34px;
+  --spacing-icon-md: 36px;
+  --spacing-avatar-md: 78px;
+  --spacing-avatar-lg: 125px;
+
+  /* Rayons d'arrondi */
+  --radius-sm: 10px;
+  --radius-md: 20px;
+  --radius-pill: 40px;
+
+  /* Ombres */
+  --shadow-card: 4px 4px 4px 1px #9e9d9d33;
+
+  /* Police */
+  --font-sans: var(--font-sofia-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-bg-canvas);
+  }
+
+  body {
+    background-color: var(--color-bg-canvas);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Anneau de focus visible et cohérent sur toute l'app. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-green);
+    outline-offset: 2px;
+  }
+}
