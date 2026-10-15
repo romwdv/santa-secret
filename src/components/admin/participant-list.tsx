@@ -62,10 +62,10 @@ export function ParticipantRow({
         {initials}
       </span>
       <span className="text-heading-sm text-text-primary">{name}</span>
-      <code className="text-caption text-text-muted">{link}</code>
+      <code className="text-caption text-text-muted">{`https://santa.romwdv.fr${link}`}</code>
 
       <span className="ml-auto flex items-center gap-8">
-        <CopyLinkButton value={link} />
+        <CopyLinkButton value={`https://santa.romwdv.fr${link}`} />
         <form action={formAction} className="flex items-center gap-4">
           <input type="hidden" name="id" value={participantId} />
           <button
