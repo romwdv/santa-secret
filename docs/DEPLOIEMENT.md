@@ -69,9 +69,12 @@ Coolify (étape suivante) et peuvent changer sans reconstruire l'image.
 2. **Image** : `ghcr.io/romwdv/santa-secret:latest`
    (mets le tag précis `:sha-abc123` plutôt que `latest` pour un déploiement
    reproductible — c'est le rôle du deuxième tag)
-3. **Port** : `3000`
-4. **Health check** : `/` — le serveur répond `307` quand la session manque,
-   c'est un comportement normal, pas une panne
+3. **Port** : **80:80**. Coolify injecte sa propre variable `PORT=80`, le serveur
+   Next la respecte (`Network: http://0.0.0.0:80` dans les logs) — un mapping
+   `3000:3003` ne pointe sur rien d'écouté et Traefik répond `503 No available
+   server`.
+4. **Health check** : `/connexion`, port 80. `/` n'est pas une page publique :
+   elle redirige en `307`.
 5. **Environment variables** : les deux clés du tableau ci-dessus, plus une
    URL de domaine public
 6. **Domaines** : ton domaine, port 443, HTTPS activé

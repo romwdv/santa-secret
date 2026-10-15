@@ -86,7 +86,11 @@ EXPOSE 3000
 # Sonde applicative : `/` exige une session participant et redirige, donc elle
 # ne convient pas. La racine renvoie 307, ce qui suffit à prouver que le
 # serveur répond — on ne teste pas la base depuis le HEALTHCHECK.
+#
+# Le port est lu dans `PORT` et non figé : Coolify injecte sa propre valeur
+# (80 sur notre hébergeur) et le serveur la respecte, donc une sonde figée sur
+# 3000 échouerait sur un conteneur parfaitement sain.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"
+  CMD node -e "const p=process.env.PORT||3000;fetch('http://127.0.0.1:'+p+'/connexion').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "server.js"]
