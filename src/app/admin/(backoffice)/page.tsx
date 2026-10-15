@@ -1,15 +1,23 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin";
-import { isDrawOpenForAdmin, listDraws, listParticipants, listRestrictions } from "@/app/admin/actions";
+import {
+  countWishlistItems,
+  isDrawOpenForAdmin,
+  listDraws,
+  listParticipants,
+  listRestrictions,
+} from "@/app/admin/actions";
 import { DrawControls } from "@/components/admin/draw-controls";
+import { WishlistPurge } from "@/components/admin/wishlist-purge";
 
 export default async function AdminHomePage() {
   await requireAdmin();
-  const [participants, restrictions, draws, drawOpen] = await Promise.all([
+  const [participants, restrictions, draws, drawOpen, wishlistCount] = await Promise.all([
     listParticipants(),
     listRestrictions(),
     listDraws(),
     isDrawOpenForAdmin(),
+    countWishlistItems(),
   ]);
 
   const sections = [
@@ -41,6 +49,8 @@ export default async function AdminHomePage() {
       </section>
 
       <DrawControls participantCount={participants.length} />
+
+      <WishlistPurge itemCount={wishlistCount} />
 
       <div className="mt-10 flex flex-wrap gap-5">
         {sections.map((s) => (

@@ -161,6 +161,25 @@ un autre `next-server` au dernier Dev, utiliser un autre port si besoin.
       l'historique fantôme (conserve le tirage en cours)
 - [ ] **Coller `MIGRATION-002` dans le SQL Editor Supabase** ⚠️ requis
 
+### Ajustement · tirages ré-ouvrables et purge des wishlists
+
+- [x] `open_draw()` supprime le tirage du batch courant avant d'insérer
+      (`delete ... where batch = v_batch`), **après** les vérifications : rouvrir
+      ne viole plus `draws_unique_giver_per_batch`, et un tirage refusé ne
+      détruit pas le tirage valide
+- [x] `docs/MIGRATION-003-open-draw-remplace.sql` — fonction corrigée + purge du
+      tirage courant ⚠️ collée, vérifié (`tirages_restants = 0`, `tirage_ouvert = false`)
+- [x] `reset_draws()` : DELETE **avec WHERE** — sans lui Supabase refuse
+      (« DELETE requires a WHERE clause ») et la réinitialisation était
+      impossible. Corrigé dans `DATA-MODEL.sql`, `MIGRATION-002`, et
+      `docs/MIGRATION-004-reset-delete-where.sql` ⚠️ à coller
+- [x] `VERIFY-DATA-MODEL.sql` : cas « réouverture » (participants ajoutés pris en
+      compte, refus non destructif) + R7 remis à la sémantique « historique effacé »
+- [x] R7 réécrit dans `PRD.md` et `ARCHITECTURE.md` (plus d'historique conservé)
+- [x] Bouton **Purger les wishlists** dans l'admin (`purgeWishlists`) : case de
+      confirmation obligatoire, ne touche ni participants, ni restrictions, ni tirages
+- [ ] Vérifié manuellement après la MIGRATION 004 : réinitialiser puis rouvrir
+
 ### M4 · Backoffice — conception Penpot
 
 - [x] `06 · Backoffice — Connexion` (440×720)

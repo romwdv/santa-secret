@@ -40,7 +40,9 @@ export default async function AdminDrawsPage() {
       )}
 
       <p className="mt-8 text-body-md text-text-muted">
-        Réinitialiser crée un nouveau lot ; l&apos;historique est conservé.
+        Réinitialiser referme le tirage et efface les tirages en cours. Tu peux
+        ensuite rouvrir : le nouveau tirage porte sur l&apos;ensemble des
+        participants.
       </p>
     </>
   );

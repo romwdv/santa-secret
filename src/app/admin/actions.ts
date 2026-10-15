@@ -282,6 +282,48 @@ export async function resetDraws(
   return { ok: true, message: "Tirages réinitialisés." };
 }
 
+// ── Wishlists ───────────────────────────────────────────────────────────────
+
+export async function countWishlistItems(): Promise<number> {
+  await requireAdmin();
+  const supabase = createServerClient();
+  const { count, error } = await supabase
+    .from("wishlist_items")
+    .select("id", { count: "exact", head: true });
+  if (error) return 0;
+  return count ?? 0;
+}
+
+/**
+ * Purge toutes les wishlists. Outil de recette : il permet de repartir d'un
+ * état vide sans toucher aux participants, aux restrictions ni aux tirages.
+ *
+ * La suppression est irréversible : d'où la confirmation explicite dans le
+ * formulaire, une case à cocher et non un simple avertissement.
+ */
+export async function purgeWishlists(
+  _previous: AdminResult | null,
+  formData: FormData,
+): Promise<AdminResult> {
+  await requireAdmin();
+  if (fd(formData, "confirm") !== "PURGER") {
+    return { ok: false, error: "Confirmation requise : cochez la case pour purger." };
+  }
+
+  const supabase = createServerClient();
+  // Supabase exige un filtre : on cible un identifiant impossible, ce qui vide
+  // la table sans avoir à énumérer les lignes.
+  const { error } = await supabase
+    .from("wishlist_items")
+    .delete()
+    .neq("id", "00000000-0000-0000-0000-000000000000");
+
+  if (error) return { ok: false, error: `Purge impossible : ${error.message}` };
+
+  revalidatePath("/admin");
+  return { ok: true, message: "Wishlists purgées." };
+}
+
 export async function isDrawOpenForAdmin(): Promise<boolean> {
   await requireAdmin();
   const supabase = createServerClient();

@@ -123,12 +123,19 @@ C'est le point le plus important de tout le modèle de données. Toute
 simplification future qui le remplacerait par une vérification applicative
 réintroduirait le bug.
 
-### La réinitialisation ne supprime rien
+### La réinitialisation referme et repart de zéro
 
-Chaque tirage porte un `batch`. Réinitialiser ouvre un nouveau batch : les
-unicités deviennent `(batch, giver_id)` et `(batch, recipient_id)`, et
-l'historique reste consultable. Supprimer les lignes aurait perdu l'information
-et aurait rendu le diagnostic d'incident impossible.
+Chaque tirage porte un `batch`. Réinitialiser ouvre un nouveau batch **et efface
+les tirages** : sans cela, les lignes d'un tirage précédent restaient lisibles
+pour un même donneur et l'écran participant devenait inutilisable. Le `batch`
+reste dans le modèle parce que les unicités `(batch, giver_id)` et
+`(batch, recipient_id)` sont ce qui garantit R1 et R2 — voir `unique (batch,
+recipient_id)` plus haut.
+
+Même raison dans `open_draw()` : il supprime le tirage du batch courant avant
+d'insérer le nouveau, après les vérifications. Rouvrir un tirage déjà ouvert ne
+doit pas échouer sur `draws_unique_giver_per_batch`, et un tirage refusé ne doit
+jamais avoir détruit le tirage valide.
 
 ---
 

@@ -100,8 +100,9 @@ comment on table santa.wishlist_items is 'Idées de cadeau. Le participant ne li
 -- ───────────────────────────────────────────────────────────────────────────
 -- Tirages
 --
--- R7 : la réinitialisation ne supprime rien, elle ouvre un nouveau `batch`.
--- L'historique reste consultable et les unicités sont donc portées par batch.
+-- R7 : la réinitialisation referme le tirage et efface les tirages courants.
+-- Le `batch` reste le support des unicités : c'est lui qui empêche deux
+-- tirages simultanés de se chevaucher.
 --
 -- R2 : `unique (batch, recipient_id)` est LA garantie de la règle « une personne
 -- tirée n'est plus disponible ». Elle est appliquée par le moteur de la base, pas
@@ -268,6 +269,13 @@ begin
     raise exception 'Tirage interdit par les restrictions configurées (%cas).', v_restricted;
   end if;
 
+  -- L'ouverture REMPLACE le tirage courant : sans cela, rouvrir un tirage déjà
+  -- ouvert violerait (batch, giver) — « duplicate key value violates unique
+  -- constraint draws_unique_giver_per_batch » — et les participants ajoutés
+  -- depuis le dernier tirage resteraient ignorés. Le delete vient APRÈS les
+  -- vérifications : une affectation refusée ne doit laisser le tirage intact.
+  delete from santa.draws where batch = v_batch;
+
   -- Les unicités (batch, giver) et (batch, recipient) garantissent R1 et R2.
   insert into santa.draws (batch, giver_id, recipient_id)
   select v_batch, (a->>'giver_id')::uuid, (a->>'recipient_id')::uuid
@@ -277,7 +285,7 @@ begin
 end;
 $$;
 
--- Réinitialisation : nouveau batch, tirage refermé. L'historique est conservé (R7).
+-- Réinitialisation : nouveau batch, tirage refermé, tirages effacés (R7).
 create or replace function santa.reset_draws()
 returns void
 language plpgsql
@@ -285,7 +293,10 @@ security definer
 set search_path = santa
 as $$
 begin
-  delete from santa.draws;
+  -- WHERE explicite : certaines installations (Supabase) refusent un DELETE sans
+  -- clause WHERE, ce qui rendrait la réinitialisation inutilisable.
+  delete from santa.draws
+   where batch = (select s.batch from santa.app_settings s where s.id = 1);
 
   update santa.app_settings
      set batch = gen_random_uuid(), draws_open = false

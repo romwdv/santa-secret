@@ -50,9 +50,11 @@ de ce document.
    l'a tiré. Cette information n'est accessible qu'à l'admin.
 6. **R6 — Tirage fermé au départ.** Aucun tirage n'est possible avant l'ouverture
    par l'admin.
-7. **R7 — Réinitialisation.** L'admin peut remplacer tous les tirages courants.
-   L'historique est conservé (batch), les participants et restrictions ne sont pas
-   affectés.
+7. **R7 — Réinitialisation.** L'admin peut refermer le tirage et remplacer tous
+   les tirages courants : un nouveau `batch` est créé et l'historique des
+   tirages est effacé. Les participants et restrictions ne sont pas affectés.
+   Rouvrir après une réinitialisation produit un tirage portant sur
+   l'**ensemble** des participants, y compris ceux ajoutés depuis.
 8. **R8 — Lecture seule chez les tiers.** La wishlist d'une autre personne est
    consultable en lecture seule, jamais modifiable.
 
