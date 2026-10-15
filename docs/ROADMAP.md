@@ -16,16 +16,16 @@ Suivi de l'avancement. **Source de vérité de l'implémentation.**
 
 ## État actuel
 
-**Au dernier point :** `M1`, `M2` et l'essentiel de `M3` sont terminés. Le
-compte admin existe (`Confirmed at` renseigné) et `Enable signup` est désactivé.
-`lint`, `typecheck`, `test` et `build` sont verts.
+**Au dernier point :** `M1` à `M7` sont terminés, y compris les tests manuels
+(M3 et M5). `MIGRATION-001` et `MIGRATION-002` sont collées en base.
+`lint`, `typecheck`, `test` (19) et `build` sont verts.
 
-**Prochaine tâche :** coller `docs/MIGRATION-001-lien-facultatif.sql` dans le
-SQL Editor Supabase — sans cela la colonne `url` reste `NOT NULL` et une idée
-sans lien sera refusée par la base.
+**Prochaine tâche :** `M8 · Déploiement` — `Dockerfile` multi-stage,
+`output: "standalone"`, workflow GHCR, puis Coolify.
 
-Puis : connecte-toi sur `/admin`, ajoute 2 participants, copie un lien, ouvre les
-tirages. Tu pourras enfin faire les tests manuels de M3 et M5.
+`M9` reste ouvert mais les écarts de maquette côté participant (gaps, marges,
+boutons de retour) sont assumés : toute correction future se fait dans Penpot,
+puis par ré-export des tokens — pas en alignant le code sur la maquette.
 
 **Accès à la base :** supabase-js doit cibler le schéma via
 `createClient(url, key, { db: { schema: 'santa' } })`. En curl, la forme
@@ -152,6 +152,15 @@ un autre `next-server` au dernier Dev, utiliser un autre port si besoin.
 - [x] Formulaire : mention « (facultatif) », placeholder d'exemple
 - [ ] **Coller `MIGRATION-001` dans le SQL Editor Supabase** ⚠️ requis
 
+### Migration 002 · réinitialisation sans historique
+
+- [x] `santa.reset_draws()` : `delete from santa.draws` avant le changement de lot
+- [x] Lectures de `draws` filtrées sur le batch courant (`getMyDrawRecipient`,
+      `getGiftDetails`, écran admin) — évite le `maybeSingle()` multi-lignes
+- [x] `docs/MIGRATION-002-reset-draws.sql` : fonction corrigée + purge de
+      l'historique fantôme (conserve le tirage en cours)
+- [ ] **Coller `MIGRATION-002` dans le SQL Editor Supabase** ⚠️ requis
+
 ### M4 · Backoffice — conception Penpot
 
 - [x] `06 · Backoffice — Connexion` (440×720)
@@ -178,37 +187,47 @@ un autre `next-server` au dernier Dev, utiliser un autre port si besoin.
 - [x] **14 tests unitaires** : couplage parfait, auto-tirage, restrictions dans les
       deux sens, cas dégénérés (0/1 participant), restrictions impossibles, 30 personnes
 - [x] `openDraws()` : calcule puis écrit via `santa.open_draw` (transactionnel)
-- [x] `resetDraws()` via `santa.reset_draws` (nouveau lot, historique conservé)
+- [x] `resetDraws()` via `santa.reset_draws` (nouveau lot, **tirages effacés**) —
+      voir Migration 002 : la réinitialisation ne conserve pas d'historique
 - [x] Écrans `/admin`, `/admin/participants`, `/admin/restrictions`, `/admin/draws`
 - [ ] **À tester manuellement (compte admin requis)** : connexion, ajout de
       participants, restrictions, ouverture/réinitialisation
 
 ### M6 · Algorithme de tirage
 
-- [ ] `src/lib/draw.ts` — backtracking + forward-checking
-- [ ] Tests : tirage valide, auto-tirage exclu, restrictions respectées
-- [ ] Tests de dégénérescence : 0 participant, 1 participant, restrictions
+- [x] `src/lib/draw.ts` — backtracking + forward-checking
+- [x] Tests : tirage valide, auto-tirage exclu, restrictions respectées
+- [x] Tests de dégénérescence : 0 participant, 1 participant, restrictions
       impossibles, restriction totale
-- [ ] Message d'erreur nommant les participants bloqués
-- [ ] Intégration avec `open_draw()`
+- [x] Message d'erreur nommant les participants bloqués
+- [x] Intégration avec `open_draw()`
 
 ### M7 · Parcours participant
 
-- [ ] Accueil : 3 états (tirage fermé / pas encore tiré / déjà tiré)
-- [ ] Écran de tirage
-- [ ] Wishlist personnelle branchée sur la base (ajout, suppression)
-- [ ] Wishlist d'un tiers en lecture seule
-- [ ] Vérification que l'anonymat tient (R5) : aucun endpoint ne renvoie
-      le donneur d'un participant
+- [x] Accueil : hub vers « Mon tirage » et « Ma wishlist » (`BottomNav`)
+- [x] Écran de tirage avec ses **3 états** : tirage fermé / pas encore tiré /
+      déjà tiré — `/tirage`, atteint depuis l'accueil. L'accueil reste un hub,
+      il ne porte pas les états lui-même.
+- [x] Wishlist personnelle branchée sur la base (ajout, suppression)
+- [x] Wishlist d'un tiers en lecture seule
+- [x] Anonymat (R5) vérifié : aucun endpoint participant ne renvoie de donneur ;
+      `getGiftDetails` ne compare que l'id destinataire et `notFound()` sinon.
+      Les lectures du donneur restent côté admin, derrière `requireAdmin()`
+- [ ] **Recette manuelle à refaire** après la Migration 002 : ouvrir un tirage,
+      le réinitialiser, puis vérifier que l'accès au tirage fonctionne toujours
 
 ### M8 · Déploiement
 
-- [ ] `Dockerfile` multi-stage + `.dockerignore`
-- [ ] `output: "standalone"` dans `next.config.ts`
-- [ ] Build local de l'image vérifié
-- [ ] `.github/workflows/deploy.yml` : build + push GHCR
-- [ ] Secrets GitHub configurés
-- [ ] Source « Docker Image » configurée dans Coolify
+- [x] `Dockerfile` multi-stage + `.dockerignore`
+- [x] `output: "standalone"` dans `next.config.ts`
+- [x] Build Next + serveur standalone démarré et testé en local (307 sur `/`)
+- [x] Build de l'image vérifié : `docker build` + `docker run`, réponse `307`
+      sur `/`, conteneur `healthy`, exécution en `nextjs` (non root), 297 Mo
+- [x] `.github/workflows/deploy.yml` : build + push GHCR (tags `latest` + SHA)
+- [x] Secrets GitHub documentés → `docs/DEPLOIEMENT.md`. Une seule variable
+      (`NEXT_PUBLIC_SUPABASE_URL`, dans l'onglet **Variables**). Aucun secret :
+      le `GITHUB_TOKEN` suffit à pousser, GHCR est public
+- [ ] Source « Docker Image » configurée dans Coolify (à faire au déploiement)
 - [ ] Recette complète en production
 
 ### M9 · Relecture design
@@ -225,12 +244,12 @@ un autre `next-server` au dernier Dev, utiliser un autre port si besoin.
 | --- | --- |
 | M1 · Fondations | ✅ Terminé |
 | M2 · Modèle de données | ✅ Terminé |
-| M3 · Session participant | 🟡 Tests manuels en attente d'un lien |
+| M3 · Session participant | ✅ Testé manuellement (lien, tirage, wishlist) |
 | M4 · Backoffice — conception | 🟡 Relecture visuelle à faire |
-| M5 · Backoffice — implémentation | 🟡 Tests manuels admin |
+| M5 · Backoffice — implémentation | ✅ Testé manuellement + Migration 002 |
 | M6 · Algorithme de tirage | ✅ `draw.ts` + 14 tests |
-| M7 · Parcours participant | ⬜ À faire |
-| M8 · Déploiement | ⬜ À faire |
+| M7 · Parcours participant | ✅ Écrans et R5 — recette à refaire après M002 |
+| M8 · Déploiement | 🟡 Image vérifiée, reste Coolify + recette |
 | M9 · Relecture design | ⬜ À faire |
 
 ---

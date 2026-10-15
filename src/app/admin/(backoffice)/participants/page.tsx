@@ -30,7 +30,7 @@ export default async function AdminParticipantsPage() {
         </div>
       </section>
 
-      <ul className="mt-10 flex flex-col gap-5">
+      <ul className="mt-10 flex flex-col gap-20">
         {rows.map((p) => (
           <ParticipantRow
             key={p.id}

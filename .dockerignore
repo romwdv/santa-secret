@@ -1,0 +1,56 @@
+# Le contexte de build ne contient QUE ce qui est nécessaire à `next build`.
+# Tout le reste est réintroduit ou ignoré : un `.dockerignore` trop permissif
+# fait entrer `.env.local` et les secrets dans une couche de l'image.
+#
+# ⚠️ Rappel : les secrets sont des ARGUMENTS DE BUILD pour `NEXT_PUBLIC_*`
+#    (inlinés dans le bundle au moment du build) et des VARIABLES D'ENVIRONNEMENT
+#    à l'exécution pour les autres. Voir Dockerfile.
+
+# Dépendances — réinstallées par `npm ci` dans l'image, jamais copiées.
+node_modules
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Tests et vérification du schéma : hors image.
+.vitest
+coverage
+scripts
+
+# Sorties de build — reconstruites dans l'image.
+.next
+out
+build
+next-env.d.ts
+*.tsbuildinfo
+
+# Secrets. Le contexte ne doit JAMAIS contenir de clé, même pour un build :
+# elles arrivent par ARG puis par ENV à l'exécution.
+.env*
+!.env.example
+
+# Docs et sources de vérité : inutiles à l'exécution.
+# `docs/*.sql` est de toute façon ignoré par git.
+docs
+README.md
+AGENTS.md
+design.md
+*.md
+
+# Divers
+.git
+.gitignore
+.github
+.dockerignore
+Dockerfile
+.vscode
+.idea
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vercel

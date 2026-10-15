@@ -5,6 +5,9 @@ import { Avatar } from "@/components/avatar";
 import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { getGiftDetails } from "@/app/actions";
+import { Button } from "@/components/button";
+import { ArrowLeft } from "lucide-react";
+
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -26,9 +29,7 @@ export default async function GiftWishlistPage(ctx: Context) {
 
   return (
     <main className="mx-auto flex w-full max-w-110 flex-1 flex-col px-6">
-      <BackLink />
-
-      <div className="mt-8 flex flex-col items-center gap-4 text-center">
+      <div className="mt-8  mb-12 flex flex-col items-center gap-4 text-center">
         <Avatar initials={recipient.initials} size="lg" />
         <h1 className="text-heading-md text-text-primary">La wishlist de {recipient.firstName}</h1>
         <p className="text-body-lg text-text-muted">
@@ -43,7 +44,7 @@ export default async function GiftWishlistPage(ctx: Context) {
           className="mt-8"
         />
       ) : (
-        <ul className="mt-8 flex flex-col gap-10">
+        <ul className="mt-8 mb-14 flex flex-col gap-10">
           {items.map((item) => (
             <li key={item.id}>
               <Card item={item} />
@@ -52,12 +53,12 @@ export default async function GiftWishlistPage(ctx: Context) {
         </ul>
       )}
 
-      <Link
-        href="/tirage"
-        className="mt-8 text-body-lg text-brand-red underline underline-offset-4"
-      >
-        Retour à mon tirage
-      </Link>
+        <Button asChild tone="neutral" size="md" className="mt-8 w-full gap-5">
+          <Link href="/">
+            <ArrowLeft size={24} aria-hidden="true" />
+            Retour à l&apos;accueil
+          </Link>
+        </Button>
     </main>
   );
 }
