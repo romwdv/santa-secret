@@ -35,8 +35,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # La seule variable inlinée au build. C'est une clé anon publishable :
-      # elle n'est pas secrète et finit dans le bundle client.
+      # Seule variable inlinée au build. C'est une clé anon publishable :
+      # elle n'est pas secrète et finit dans le bundle client. Elle est aussi
+      # requise au RUNTIME — voir le rappel dans le Dockerfile.
       - name: Valeurs de build
         uses: docker/build-push-action@v6
         with:
@@ -48,9 +49,33 @@ jobs:
           build-args: |
             NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
 
-      # Pas de `docker/login-action` pour Supabase : les clés secrètes ne sont
-      # PAS des variables de build. Elles sont configurées dans Coolify, qui
-      # les injecte au démarrage du conteneur. Voir docs/ROADMAP.md (M8).
+      # Les clés secrètes ne sont PAS des variables de build : elles sont
+      # configurées dans Coolify, qui les injecte au démarrage du conteneur.
+      # Voir docs/DEPLOIEMENT.md.
+
+      # Déploiement automatique. L'étape est conditionnelle pour que le build
+      # reste vert tant que le webhook n'est pas configuré.
+      #
+      # Coolify n'a aucune raison de redéployer tout seul : la ressource est de
+      # type « Docker Image », sans dépôt Git rattaché. Son « Deploy on push »
+      # ne concerne que les applications connectées à un dépôt. C'est donc
+      # l'image publiée qui déclenche le déploiement, d'où cet appel.
+      #
+      # Volontairement APRÈS le push : Coolify tire `latest`, qui doit donc
+      # pointer la nouvelle image, sinon il redéploie l'ancienne.
+      - name: Déployer sur Coolify
+        if: ${{ secrets.COOLIFY_WEBHOOK != '' }}
+        env:
+          COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
+          # Optionnel : seulement si le webhook exige une authentification.
+          # Au-delà de 10 octets pour ne pas envoyer d'en-tête vide.
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          auth=()
+          if [ -n "$COOLIFY_TOKEN" ]; then
+            auth=(--header "Authorization: Bearer $COOLIFY_TOKEN")
+          fi
+          curl --fail --silent --show-error --request POST "$COOLIFY_WEBHOOK" "${auth[@]}"
 
       - name: Résumé
         run: |

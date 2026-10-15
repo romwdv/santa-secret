@@ -9,9 +9,11 @@
 # Les secrets sont répartis en deux familles, et c'est le point à ne pas
 # rater :
 #
-#   • NEXT_PUBLIC_SUPABASE_URL est INLINÉ dans le bundle par `next build`.
-#     Il doit donc être fourni au BUILD, via ARG. Le changer exige de
-#     reconstruire l'image — il ne peut pas être fixé à l'exécution.
+#   • NEXT_PUBLIC_SUPABASE_URL est INLINÉ dans le bundle client par
+#     `next build`. Elle doit donc être fournie au BUILD, via ARG. Le code
+#     serveur la relit aussi dans process.env à l'exécution : les deux étapes
+#     sont requises, faute de quoi les pages statiques répondent tandis que
+#     tout ce qui touche Supabase échoue.
 #
 #   • SUPABASE_ANON_KEY et SUPABASE_SECRET_KEY ne sont lues qu'au RUNTIME,
 #     côté serveur uniquement. Elles viennent de l'environnement du

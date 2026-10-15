@@ -51,15 +51,21 @@ Le workflow `Déploiement` construit et pousse deux tags :
 Celles-ci sont lues **au démarrage**, pas au build. Elles se configurent dans
 Coolify (étape suivante) et peuvent changer sans reconstruire l'image.
 
-| Variable | Nécessaire au build | Nécessaire au runtime | Rôle |
+| Variable | Au build | Au runtime | Rôle |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | oui | — | Inlinée dans le bundle |
+| `NEXT_PUBLIC_SUPABASE_URL` | oui | **oui** | Inlinée dans le bundle client *et* lue par le code serveur (`src/lib/supabase/`) |
 | `SUPABASE_ANON_KEY` | non | oui | Session admin (`@supabase/ssr`) |
 | `SUPABASE_SECRET_KEY` | non | oui | Lectures/écritures de l'app |
 
-> `NEXT_PUBLIC_SUPABASE_URL` n'est plus lisible au runtime : Next l'a figée dans
-> le bundle. Changer l'URL du projet Supabase impose de reconstruire l'image,
-> donc de repusher un commit.
+> `NEXT_PUBLIC_SUPABASE_URL` est la seule à être requise aux **deux** étapes. Le
+> préfixe `NEXT_PUBLIC_` ne signifie pas « variable publique donc optionnelle » :
+> Next l'inline dans le bundle client au build, mais le code serveur la lit encore
+> dans `process.env` à l'exécution. Sans elle, les pages statiques répondent
+> (/connexion) alors que tout ce qui touche Supabase échoue — un symptôme trompeur
+> qui donne l'impression que l'app est partiellement déployée.
+
+> Le build échoue volontairement si la variable est absente (`Dockerfile`), pour
+> que le bundle ne parte jamais avec une URL vide.
 
 ---
 
@@ -75,8 +81,7 @@ Coolify (étape suivante) et peuvent changer sans reconstruire l'image.
    server`.
 4. **Health check** : `/connexion`, port 80. `/` n'est pas une page publique :
    elle redirige en `307`.
-5. **Environment variables** : les deux clés du tableau ci-dessus, plus une
-   URL de domaine public
+5. **Environment variables** : les **trois** variables du tableau ci-dessus
 6. **Domaines** : ton domaine, port 443, HTTPS activé
 
 ### Ce que Coolify ne doit PAS faire
@@ -110,7 +115,51 @@ curl -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/
 
 ---
 
-## 6. Revenir en arrière
+## 7. Déploiement automatique
+
+Coolify n'a aucune raison de redéployer seul : la ressource est de type
+*Docker Image*, sans dépôt Git rattaché. Son *Deploy on push* ne concerne que
+les applications connectées à un dépôt — ici, c'est Actions qui construit, donc
+c'est Actions qui demande le redéploiement.
+
+### Récupérer l'URL du webhook
+
+Dans la ressource → onglet **Webhooks** → *Deploy Webhook*. Copie l'URL.
+
+### Créer les secrets GitHub
+
+*Settings → Secrets and variables → Actions → onglet **Secrets***
+
+| Nom | Valeur |
+| --- | --- |
+| `COOLIFY_WEBHOOK` | l'URL de Deploy Webhook copiée ci-dessus |
+
+`COOLIFY_TOKEN` n'est nécessaire que si ton webhook exige une authentification
+(URL versionnée avec un token). Dans ce cas, ajoute un second secret contenant
+ce token.
+
+### Ce qui se passe
+
+```
+push sur main  →  Actions construit  →  push GHCR  →  POST webhook  →  Coolify tire latest
+```
+
+L'appel au webhook est **placé après** le push vers GHCR, volontairement :
+Coolify tire le tag `latest`, qui doit déjà pointer la nouvelle image.
+
+Tant que `COOLIFY_WEBHOOK` n'est pas défini, l'étape est sautée et le build
+reste vert — l'image est publiée, seul le déploiement manuel est nécessaire.
+
+### Vérifier
+
+1. Pousser un commit sur `main`
+2. Onglet **Actions** : le run se termine sur `Déployer sur Coolify`
+3. Dans Coolify, un nouveau déploiement apparaît, déclenché par le webhook
+4. Le conteneur redémarre sur la nouvelle image
+
+---
+
+## 8. Revenir en arrière
 
 Le tag par SHA est immuable. En cas de régression :
 
