@@ -64,18 +64,23 @@ jobs:
       # Volontairement APRÈS le push : Coolify tire `latest`, qui doit donc
       # pointer la nouvelle image, sinon il redéploie l'ancienne.
       - name: Déployer sur Coolify
-        if: ${{ secrets.COOLIFY_WEBHOOK != '' }}
         env:
           COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
           # Optionnel : seulement si le webhook exige une authentification.
-          # Au-delà de 10 octets pour ne pas envoyer d'en-tête vide.
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
         run: |
+          if [ -z "$COOLIFY_WEBHOOK" ]; then
+            echo "::notice::COOLIFY_WEBHOOK absent : image publiée, déploiement à faire manuellement."
+            exit 0
+          fi
+
           auth=()
           if [ -n "$COOLIFY_TOKEN" ]; then
             auth=(--header "Authorization: Bearer $COOLIFY_TOKEN")
           fi
+
           curl --fail --silent --show-error --request POST "$COOLIFY_WEBHOOK" "${auth[@]}"
+          echo "Déploiement demandé à Coolify."
 
       - name: Résumé
         run: |

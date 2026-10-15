@@ -147,8 +147,11 @@ push sur main  →  Actions construit  →  push GHCR  →  POST webhook  →  C
 L'appel au webhook est **placé après** le push vers GHCR, volontairement :
 Coolify tire le tag `latest`, qui doit déjà pointer la nouvelle image.
 
-Tant que `COOLIFY_WEBHOOK` n'est pas défini, l'étape est sautée et le build
-reste vert — l'image est publiée, seul le déploiement manuel est nécessaire.
+Tant que `COOLIFY_WEBHOOK` n'est pas défini, le script le détecte, affiche une
+notice et quitte sans erreur — l'image est publiée, seul le déploiement manuel
+est nécessaire. Le test est fait dans le script et non dans un `if:` de step :
+le contexte `secrets` n'y est pas accessible, GitHub refuse de valider le
+workflow.
 
 ### Vérifier
 
