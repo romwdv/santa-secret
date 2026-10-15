@@ -17,7 +17,7 @@ const buttonVariants = cva(
       },
       size: {
         md: "h-control-md px-8 text-heading-sm",
-        sm: "h-control-sm px-5 text-label-sm",
+        sm: "h-control-sm px-12 text-heading-md",
       },
     },
     defaultVariants: {
