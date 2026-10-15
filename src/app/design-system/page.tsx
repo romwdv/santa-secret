@@ -4,6 +4,7 @@ import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { Field } from "@/components/field";
 import { IconButton } from "@/components/icon-button";
+import { deleteWishlistItem } from "@/app/actions";
 
 const tones = [
   { tone: "green", label: "Green" },
@@ -96,8 +97,27 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
-      <Section title="Card">
-        <Card item={{ id: "ds", title: "Bougie senteur", url: "http://mabougie.com" }} />
+      <Section title="Card" description="Avec suppression, lien présent (gauche) ou absent (droite).">
+        <div className="flex flex-col gap-5">
+          <Card
+            item={{
+              id: "ds",
+              participantId: "ds",
+              title: "Bougie senteur",
+              url: "http://mabougie.com",
+            }}
+            deleteAction={deleteWishlistItem}
+          />
+          <Card
+            item={{
+              id: "ds2",
+              participantId: "ds",
+              title: "Un livre de cuisine",
+              url: null,
+            }}
+            deleteAction={deleteWishlistItem}
+          />
+        </div>
       </Section>
 
       <Section title="IconButton">

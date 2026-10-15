@@ -54,11 +54,16 @@ place, une relecture du diff fait office de garde-fou.
 | `Button` | Action principale, soumission de formulaire | La navigation — utiliser un `Link` habillé en `Button` via `asChild` |
 | `IconButton` | Action destructive sur un élément de liste ; toujours avec `label` | Une action non destructive (pas de confirmation implicite) |
 | `Field` | Saisie de texte courte ; `aria-describedby` pour le message d'erreur | Du texte long ou du multi-ligne |
-| `Card` | Un élément de la wishlist : titre + lien + suppression | Un contenu statique générique |
+| `Card` | Un élément de la wishlist : titre, **lien facultatif**, suppression | Un contenu statique générique |
 | `EmptyState` | Un état vide explicite, avec la prochaine action | Un chargement (à traiter séparément) |
 | `Avatar` | Identifier une personne ; `initials` en 2 lettres maximum | Une photo — le composant ne gère pas les images |
 
 ### Axes de variants
+
+`Button` expose un tone `neutral` : fond `border-subtle` (#E8E0D2), texte
+`brand-red`, survol `border-default`. C'est la variante des actions
+secondaires ou de navigation (« Retour à l'accueil »), qui ne doivent pas
+concurrencer l'action principale en rouge ou en vert.
 
 Les axes exposés en props sont ceux qui changent le **rendu**. Les états
 Default / Hover / Pressed / Disabled sont des **états d'interaction** et ne sont

@@ -1,6 +1,7 @@
 import { NewItemForm } from "@/components/new-item-form";
-import { getSession } from "@/lib/mock";
+import { requireParticipant } from "@/lib/participant";
 
-export default function NewWishlistItemPage() {
-  return <NewItemForm user={getSession()} />;
+export default async function NewWishlistItemPage() {
+  const user = await requireParticipant();
+  return <NewItemForm user={user} />;
 }

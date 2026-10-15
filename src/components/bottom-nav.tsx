@@ -15,8 +15,8 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky bottom-0 mt-auto bg-bg-canvas pt-8 pb-8">
-      <ul className="flex justify-center gap-5">
+    <nav className="sticky bottom-0  bg-bg-canvas pt-8 pb-8">
+      <ul className="flex justify-center gap-20">
         {links.map(({ href, label, Icon, tone }) => {
           const active = pathname === href;
           return (

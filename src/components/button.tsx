@@ -10,6 +10,8 @@ const buttonVariants = cva(
   {
     variants: {
       tone: {
+        neutral:
+          "bg-border-subtle text-brand-red hover:bg-border-default active:bg-border-default",
         green: "bg-state-default-green text-text-on-brand hover:bg-state-hover-green active:bg-state-pressed-green disabled:bg-state-disabled-green disabled:text-text-on-brand-disabled",
         red: "bg-state-default-red text-text-on-brand hover:bg-state-hover-red active:bg-state-pressed-red disabled:bg-state-disabled-red disabled:text-text-on-brand-disabled",
       },

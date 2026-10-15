@@ -25,6 +25,54 @@ C'est une défense en profondeur, pas le mécanisme principal.
 
 ---
 
+## 1bis. Un schéma Postgres dédié : `santa`
+
+**Décision : aucune table Santa dans `public`. Tout vit dans le schéma `santa`.**
+
+Le projet Supabase héberge **une autre application** dans `public` (`actions`,
+`matches`, `outbox`, `participants`, `players`, `teams`). Deux raisons rendent le
+schéma dédié non négociable :
+
+1. **Collision de noms.** L'autre application a déjà une table `participants`.
+   Écrire la nôtre à côté aurait été ambiguë, et un `drop table participants`
+   aurait été destructeur.
+2. **Isolement.** On peut révoquer, réinitialiser ou supprimer l'ensemble du
+   schéma Santa d'un geste, sans risque pour l'autre application. `RESET-SANTA.sql`
+   ne référence que `santa.*` et se termine par un garde-fou qui vérifie que les
+   6 tables de l'autre app sont toujours là.
+
+Conséquence pratique : `supabase-js` doit cibler le schéma explicitement
+(`createClient(url, key, { db: { schema: 'santa' } })` ou `.schema('santa')` sur
+chaque requête), et le schéma doit être déclaré dans **Project Settings → API →
+Exposed schemas**.
+
+### Jointures PostgREST dans un schéma non-`public`
+
+**Piège rencontré en M5.** Les relations imbriquées doivent être nommées **sans
+le préfixe de schéma** :
+
+```ts
+// ✅ correct — la relation est cherchée dans le schéma courant
+.select("a:participants!restrictions_a_id_fkey(id, first_name, initials)")
+
+// ❌ PGRST200 — « Could not find a relationship between 'restrictions' and
+//    'santa_participants' in the schema cache »
+.select("a:santa_participants!restrictions_a_id_fkey(id, first_name, initials)")
+```
+
+Le hint `!restrictions_a_id_fkey` est indispensable : `restrictions` porte deux
+clés étrangères vers `participants`, PostgREST ne peut pas deviner laquelle
+désigner. Les noms de contraintes sont générés par Postgres — les vérifier si le
+schéma change.
+
+De même, en ligne de commande la forme de chemin `/rest/v1/santa/table` échoue
+(`PGRST125`) alors que tout fonctionne : la forme documentée est l'en-tête
+`Accept-Profile: santa` en lecture, `Content-Profile: santa` en écriture.
+
+> À long terme, un projet Supabase séparé serait plus sain — authentification,
+> rate limits et stockage sont aujourd'hui partagés avec l'autre application.
+> Le schéma dédié est la solution de repli qui évite toute casse.
+
 ## 2. Deux systèmes d'authentification, volontairement distincts
 
 | | Participant | Administrateur |
@@ -104,6 +152,9 @@ une application où **chaque page** dépend de la session.
 Pour une app authentifiée de cette taille, on paie plus qu'on ne gagne.
 `cacheComponents: false` dans `next.config.ts`.
 
+`partialPrefetching` en dépend : le build échoue si on laisse l'un activé et
+l'autre désactivé. Les deux false.
+
 ---
 
 ## 6. Turbopack et les conventions Next 16
@@ -136,3 +187,4 @@ variables d'environnement côté Coolify.
 | Suppression d'un participant ayant tiré | Refusée, admin invité à réinitialiser | Confirmer avec le produit |
 | Compte admin initial | Créé à la main dans le dashboard Supabase | Voir `ROADMAP.md`, jalon 3 |
 | Conservation des tirages batchés | Conservés | Revoir si le volume devient gênant |
+| Partage du projet Supabase | Schéma `santa` dans un projet mutualisé | Un projet séparé serait plus sain à terme |

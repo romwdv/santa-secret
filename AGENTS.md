@@ -29,6 +29,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   revenir à la fin.
 - **Source de vérité du design** : Penpot. `src/app/globals.css` est un artefact
   généré — ne pas l'éditer à la main.
+- **Base de données** : le projet Supabase héberge **une autre application** dans
+  le schéma `public`. Tout Santa est dans le schéma **`santa`**. Ne jamais écrire,
+  renommer ni supprimer quoi que ce soit dans `public`.
 - **Vérifier avant de déclarer fini** : `npm run lint`, `npx tsc --noEmit`,
   `npm run build`. Un jalon non coché tant que ce n'est pas vert.
 - **Ne jamais casser un invariant** : la liste est en bas de `ROADMAP.md`. Le

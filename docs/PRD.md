@@ -69,7 +69,7 @@ de ce document.
 | **US-3** | En tant que participant, je veux tirer une personne au sort. | Le tirage aboutit à l'affichage d'un nom et de son avatar. Un second essai n'est pas possible (R1). |
 | **US-4** | En tant que participant, je veux revenir sur mon tirage plus tard. | Mon destinataire est toujours identique d'une session à l'autre. |
 | **US-5** | En tant que participant, je veux consulter la wishlist de la personne que j'ai tirée, en lecture seule. | Je vois les idées et les liens, je ne dispose d'aucun contrôle de modification. |
-| **US-6** | En tant que participant, je veux ajouter une idée à ma wishlist. | Titre et lien requis, validation de l'URL, l'idée apparaît immédiatement dans ma liste. |
+| **US-6** | En tant que participant, je veux ajouter une idée à ma wishlist. | Titre requis ; **lien facultatif**. Si un lien est fourni, il doit être en `http(s)`. L'idée apparaît immédiatement dans ma liste. |
 | **US-7** | En tant que participant, je veux supprimer une idée de ma wishlist. | L'idée disparaît après confirmation. Je ne peux supprimer que les miennes. |
 
 ### Administrateur

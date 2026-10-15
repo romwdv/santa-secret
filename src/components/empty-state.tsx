@@ -13,7 +13,7 @@ export function EmptyState({ title, hint, children, className }: EmptyStateProps
     <div
       data-slot="empty-state"
       className={cn(
-        "flex flex-col items-center gap-4 rounded-md border-2 border-border-default bg-bg-canvas px-5 py-6 text-center",
+        "flex flex-col items-center gap-4 rounded-md border-2 border-dashed bg-bg-canvas px-5 py-6 text-center",
         className,
       )}
     >

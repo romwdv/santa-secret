@@ -1,9 +1,9 @@
 import { Avatar } from "@/components/avatar";
 import { BottomNav } from "@/components/bottom-nav";
-import { getSession } from "@/lib/mock";
+import { requireParticipant } from "@/lib/participant";
 
-export default function IndexPage() {
-  const user = getSession();
+export default async function IndexPage() {
+  const user = await requireParticipant();
 
   return (
     <>
@@ -13,12 +13,13 @@ export default function IndexPage() {
         <h1 className="mt-12 text-display-md text-text-primary">
           Bonjour {user.firstName} !
         </h1>
-        <p className="mt-4 text-body-lg text-text-primary">
+        <p className="mt-4 mb-20 text-body-lg text-text-primary">
           bienvenue sur ton secret santa
         </p>
+        <BottomNav />
       </main>
 
-      <BottomNav />
+      
     </>
   );
 }
